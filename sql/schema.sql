@@ -1,0 +1,6 @@
+-- StoreSense star schema (DuckDB)
+-- Owner: Member 2 (Warehouse & OLAP)
+-- Spec:  docs/PROJECT_BRIEF.md, section 5
+--
+-- Fact tables:      fact_order_line, fact_order
+-- Dimension tables: dim_product, dim_user, dim_time

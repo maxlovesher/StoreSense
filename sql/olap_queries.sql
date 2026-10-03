@@ -1,0 +1,5 @@
+-- StoreSense OLAP demo queries (DuckDB GROUP BY ROLLUP / CUBE)
+-- Owner: Member 2 (Warehouse & OLAP)
+-- Spec:  docs/PROJECT_BRIEF.md, section 6.2
+--
+-- One demo query each for: roll-up / drill-down, slice, dice, pivot.
