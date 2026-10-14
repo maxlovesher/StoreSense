@@ -1,0 +1,58 @@
+// StoreSense star schema, in DBML.
+// Paste this into https://dbdiagram.io to redraw or export the diagram.
+// It mirrors sql/schema.sql (the SQL file is the source of truth).
+
+Table dim_time {
+  time_key smallint [pk, note: 'order_dow * 24 + order_hour_of_day, 0..167']
+  order_dow smallint [not null, note: '0..6, assumed 0 = Sunday']
+  day_name varchar [not null]
+  is_weekend boolean [not null]
+  order_hour_of_day smallint [not null]
+  hour_band varchar [not null, note: 'Morning / Afternoon / Evening / Night']
+}
+
+Table dim_product {
+  product_key integer [pk]
+  product_name varchar [not null]
+  aisle_id integer [not null]
+  aisle varchar
+  department_id integer [not null]
+  department varchar
+}
+
+Table dim_user {
+  user_key integer [pk]
+  total_orders integer [not null]
+  avg_basket_size double
+  avg_days_between_orders double
+  reorder_ratio double
+  segment varchar [note: 'NULL until the clustering step fills it in']
+}
+
+Table fact_order {
+  order_id integer [pk]
+  user_key integer [not null]
+  time_key smallint [not null]
+  order_number integer [not null]
+  days_since_prior integer [note: 'NULL on the first order']
+  basket_size integer [not null]
+  reordered_items integer [not null]
+  Note: 'Grain: one order'
+}
+
+Table fact_order_line {
+  order_id integer [not null]
+  product_key integer [not null]
+  user_key integer [not null]
+  time_key smallint [not null]
+  add_to_cart_order smallint [not null]
+  reordered tinyint [not null]
+  Note: 'Grain: one product in one order'
+}
+
+Ref: fact_order_line.product_key > dim_product.product_key
+Ref: fact_order_line.user_key > dim_user.user_key
+Ref: fact_order_line.time_key > dim_time.time_key
+Ref: fact_order_line.order_id > fact_order.order_id
+Ref: fact_order.user_key > dim_user.user_key
+Ref: fact_order.time_key > dim_time.time_key
