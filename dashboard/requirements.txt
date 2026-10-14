@@ -1,0 +1,11 @@
+# Packages for the hosted dashboard only (Streamlit Community Cloud reads the
+# requirements file next to the entry file, dashboard/app.py). It is smaller than
+# the root requirements.txt: no Jupyter, LightGBM or test tools, so the app builds faster.
+# For local work, keep using the root requirements.txt.
+streamlit>=1.36
+plotly>=5.22
+duckdb>=1.1
+pandas>=2.2
+numpy>=1.26
+pyarrow>=16.0
+mlxtend>=0.23        # the Basket Rules page calls frequently_bought_together() from mining/association_rules.py
