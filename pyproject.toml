@@ -1,0 +1,17 @@
+# Lets every script do `from common.db import ...` no matter which folder it
+# runs from. Installed once with `pip install -e .` (see README, Setup).
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "storesense"
+version = "0.1.0"
+requires-python = ">=3.11"
+
+[tool.setuptools]
+packages = ["common", "etl"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]

@@ -28,12 +28,12 @@ Raw CSVs ──► ETL (Python) ──► DuckDB warehouse (star schema)
 
 | # | Role | Member | GitHub |
 |---|---|---|---|
-| 1 | Data & ETL Lead | _name_ | _@username_ |
-| 2 | Warehouse & OLAP | _name_ | _@username_ |
-| 3 | Association Rules | _name_ | _@username_ |
-| 4 | Customer Segmentation | _name_ | _@username_ |
-| 5 | Reorder Prediction & Evaluation | _name_ | _@username_ |
-| 6 | Dashboard & Integration | _name_ | _@username_ |
+| 1 | Data & ETL Lead | Manish Sarkar | [@maxlovesher](https://github.com/maxlovesher) |
+| 2 | Warehouse & OLAP | Kavya | [@Kavya-025](https://github.com/Kavya-025) |
+| 3 | Association Rules | _name_ | [@KB-0141](https://github.com/KB-0141) |
+| 4 | Customer Segmentation | Manish Dey | [@foresto-dreamer](https://github.com/foresto-dreamer) |
+| 5 | Reorder Prediction & Evaluation | Animesh Prakash | [@DIO4699](https://github.com/DIO4699) |
+| 6 | Dashboard & Integration | Rohit Gupta | [@rohitguptanit7070-lab](https://github.com/rohitguptanit7070-lab) |
 
 ## 1. Setup
 
@@ -53,7 +53,10 @@ Then install the dependencies:
 
 ```bash
 pip install -r requirements.txt
+pip install -e .
 ```
+
+The second command (run once) lets every script import the shared helpers in `common/`, wherever it is run from.
 
 ## 2. Get the data
 
@@ -103,6 +106,7 @@ The OLAP demo queries are in `sql/olap_queries.sql`.
 ```
 data/raw/            Kaggle CSVs (gitignored)
 data/warehouse/      storesense.duckdb (gitignored)
+common/              shared paths and DuckDB connection helper (used by every module)
 etl/                 extract, transform, load, validate
 sql/                 schema.sql, olap_queries.sql
 mining/              association rules, benchmark, segmentation, reorder model
