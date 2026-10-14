@@ -8,16 +8,40 @@ The pages only draw things; all SQL and file reading lives here, so it can be
 tested without a browser. The warehouse is opened read-only for each query, so
 the dashboard never blocks the one script that writes to it (segmentation).
 
+Two data sources give the same numbers:
+  * the warehouse (data/warehouse/storesense.duckdb), when it has been built;
+  * otherwise the demo extract in data/demo/ (made by dashboard/build_demo_data.py):
+    the order lines already counted per product and day-hour slot, plus the small
+    product and time dimensions. It is about 3.5 MB, so it is committed and the
+    hosted dashboard can run without the 0.23 GB warehouse.
+Every query counts order lines as SUM(l.n) over "{lines}": in the warehouse each
+order line is one row with n = 1, in the demo extract a row holds n order lines.
+
 Result files written by the mining modules (see handoff/PHASE4_SHARED_CONTRACT.md)
 are read from reports/results/. If one is missing, load_result() raises
 ResultMissing with the command that creates it, and the page shows that message.
 """
+import os
+
+import duckdb
 import pandas as pd
 
-from common.db import PROJECT_ROOT, get_connection
+from common.db import PROJECT_ROOT, WAREHOUSE_PATH, get_connection
 
 RESULTS_DIR = PROJECT_ROOT / "reports" / "results"
 FIGURES_DIR = PROJECT_ROOT / "reports" / "figures"
+DEMO_DIR = PROJECT_ROOT / "data" / "demo"
+DEMO_TABLES = ("line_counts", "dim_product", "dim_time", "kpis")
+
+# The headline numbers. The demo extract stores this one row, computed on the warehouse.
+KPI_SQL = """
+    SELECT (SELECT COUNT(*) FROM fact_order)                               AS orders,
+           (SELECT COUNT(*) FROM dim_user)                                 AS users,
+           (SELECT COUNT(*) FROM dim_product)                              AS products,
+           (SELECT AVG(basket_size) FROM fact_order WHERE basket_size > 0) AS avg_basket_size,
+           (SELECT AVG(reordered) FROM fact_order_line)                    AS reorder_rate
+"""
+LINES = "CAST(SUM(l.n) AS BIGINT)"   # the number of order lines in a group
 
 DAY_ORDER = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
 BAND_ORDER = ["Morning", "Afternoon", "Evening", "Night"]
@@ -48,12 +72,51 @@ def load_result(name: str) -> pd.DataFrame:
 # ---------------------------------------------------------------------------
 # Warehouse queries
 # ---------------------------------------------------------------------------
+def open_demo_connection(demo_dir=DEMO_DIR) -> duckdb.DuckDBPyConnection:
+    """An in-memory DuckDB with one view per demo Parquet file (line_counts, dim_product, dim_time, kpis)."""
+    con = duckdb.connect()
+    for table in DEMO_TABLES:
+        path = (demo_dir / f"{table}.parquet").as_posix().replace("'", "''")
+        con.execute(f"CREATE VIEW {table} AS SELECT * FROM read_parquet('{path}')")
+    return con
+
+
+def data_source() -> str:
+    """'warehouse', 'demo' or 'none'. STORESENSE_DATA=demo forces the demo extract (to try it locally)."""
+    demo_ready = all((DEMO_DIR / f"{t}.parquet").exists() for t in DEMO_TABLES)
+    if os.environ.get("STORESENSE_DATA") == "demo":
+        return "demo" if demo_ready else "none"
+    if WAREHOUSE_PATH.exists():
+        return "warehouse"
+    return "demo" if demo_ready else "none"
+
+
+def open_connection() -> duckdb.DuckDBPyConnection:
+    source = data_source()
+    if source == "warehouse":
+        return get_connection(read_only=True)
+    if source == "demo":
+        return open_demo_connection()
+    raise FileNotFoundError(f"Neither the warehouse ({WAREHOUSE_PATH}) nor the demo extract ({DEMO_DIR}) was found.")
+
+
+def _has_table(con, name: str) -> bool:
+    return con.execute("SELECT COUNT(*) FROM information_schema.tables WHERE table_name = ?", [name]).fetchone()[0] > 0
+
+
+def lines_source(con) -> str:
+    """What {lines} stands for: the demo's counted rows, or the warehouse's order lines with n = 1 each."""
+    if _has_table(con, "line_counts"):
+        return "line_counts l"
+    return "(SELECT product_key, time_key, 1 AS n FROM fact_order_line) l"
+
+
 def run_query(sql: str, params: list | None = None, con=None) -> pd.DataFrame:
     """Run one read-only query. Pass con to reuse a connection (tests do), else open and close one."""
     own = con is None
-    con = con or get_connection(read_only=True)
+    con = con or open_connection()
     try:
-        return con.execute(sql, params or []).df()
+        return con.execute(sql.replace("{lines}", lines_source(con)), params or []).df()
     finally:
         if own:
             con.close()
@@ -61,31 +124,31 @@ def run_query(sql: str, params: list | None = None, con=None) -> pd.DataFrame:
 
 def kpis(con=None) -> dict:
     """The five headline numbers of the Overview page."""
-    row = run_query("""
-        SELECT (SELECT COUNT(*) FROM fact_order)                               AS orders,
-               (SELECT COUNT(*) FROM dim_user)                                 AS users,
-               (SELECT COUNT(*) FROM dim_product)                              AS products,
-               (SELECT AVG(basket_size) FROM fact_order WHERE basket_size > 0) AS avg_basket_size,
-               (SELECT AVG(reordered) FROM fact_order_line)                    AS reorder_rate
-    """, con=con).iloc[0]
-    return row.to_dict()
+    own = con is None
+    con = con or open_connection()
+    try:
+        sql = "SELECT * FROM kpis" if _has_table(con, "kpis") else KPI_SQL
+        return con.execute(sql).df().iloc[0].to_dict()
+    finally:
+        if own:
+            con.close()
 
 
 def orders_by_hour(con=None) -> pd.DataFrame:
     """Order lines for every day-of-week and hour slot (168 rows), for the Overview charts."""
-    return run_query("""
-        SELECT t.day_name, t.order_dow, t.order_hour_of_day AS hour, COUNT(*) AS order_lines
-        FROM fact_order_line l JOIN dim_time t ON l.time_key = t.time_key
+    return run_query(f"""
+        SELECT t.day_name, t.order_dow, t.order_hour_of_day AS hour, {LINES} AS order_lines
+        FROM {{lines}} JOIN dim_time t ON l.time_key = t.time_key
         GROUP BY t.day_name, t.order_dow, t.order_hour_of_day
         ORDER BY t.order_dow, hour
     """, con=con)
 
 
 def department_totals(con=None) -> pd.DataFrame:
-    return run_query("""
-        SELECT p.department, COUNT(*) AS order_lines,
-               ROUND(100.0 * COUNT(*) / SUM(COUNT(*)) OVER (), 2) AS pct_of_lines
-        FROM fact_order_line l JOIN dim_product p ON l.product_key = p.product_key
+    return run_query(f"""
+        SELECT p.department, {LINES} AS order_lines,
+               ROUND(100.0 * SUM(l.n) / SUM(SUM(l.n)) OVER (), 2) AS pct_of_lines
+        FROM {{lines}} JOIN dim_product p ON l.product_key = p.product_key
         GROUP BY p.department ORDER BY order_lines DESC
     """, con=con)
 
@@ -138,7 +201,7 @@ def _filters_sql(filters: dict | None) -> tuple[str, list, set]:
 
 def _from_sql(dims: list[str], extra_needs: set) -> str:
     needs = {DIMENSIONS[d][1] for d in dims} | extra_needs
-    return "FROM fact_order_line l " + " ".join(_JOINS[a] for a in ("p", "t") if a in needs)
+    return "FROM {lines} " + " ".join(_JOINS[a] for a in ("p", "t") if a in needs)
 
 
 def olap_group(dims: list[str], filters: dict | None = None, limit: int | None = None, con=None) -> pd.DataFrame:
@@ -146,9 +209,10 @@ def olap_group(dims: list[str], filters: dict | None = None, limit: int | None =
     where, params, needs = _filters_sql(filters)
     cols = [DIMENSIONS[d][0] for d in dims]
     select = ", ".join(f"{c} AS \"{d}\"" for c, d in zip(cols, dims))
-    sql = (f"SELECT {select}, COUNT(*) AS order_lines, "
-           f"ROUND(100.0 * COUNT(*) / SUM(COUNT(*)) OVER (), 2) AS pct_of_lines "
-           f"{_from_sql(dims, needs)}{where} GROUP BY {', '.join(cols)} ORDER BY order_lines DESC")
+    sql = (f"SELECT {select}, {LINES} AS order_lines, "
+           f"ROUND(100.0 * SUM(l.n) / SUM(SUM(l.n)) OVER (), 2) AS pct_of_lines "
+           f"{_from_sql(dims, needs)}{where} GROUP BY {', '.join(cols)} "
+           f"ORDER BY order_lines DESC, {', '.join(cols)}")   # names break ties, so the order never changes
     if limit:
         sql += f" LIMIT {int(limit)}"
     return run_query(sql, params, con)
@@ -177,9 +241,9 @@ def olap_rollup(levels: list[str], filters: dict | None = None, con=None) -> pd.
     cols = [DIMENSIONS[d][0] for d in levels]
     select = ", ".join(f"{c} AS \"{d}\"" for c, d in zip(cols, levels))
     case = " ".join(f"WHEN {m} THEN '{name}'" for m, name in rollup_level_names(levels).items())
-    sql = (f"SELECT CASE GROUPING({', '.join(cols)}) {case} END AS level, {select}, COUNT(*) AS order_lines "
+    sql = (f"SELECT CASE GROUPING({', '.join(cols)}) {case} END AS level, {select}, {LINES} AS order_lines "
            f"{_from_sql(levels, needs)}{where} GROUP BY ROLLUP ({', '.join(cols)}) "
-           f"ORDER BY GROUPING({', '.join(cols)}) DESC, order_lines DESC")
+           f"ORDER BY GROUPING({', '.join(cols)}) DESC, order_lines DESC, {', '.join(cols)}")
     return run_query(sql, params, con)
 
 
