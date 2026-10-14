@@ -11,12 +11,29 @@ first entry is called "Overview" instead of the file name.
 
 Run from the project root:
     streamlit run dashboard/app.py
-"""
-import plotly.express as px
-import streamlit as st
 
-from dashboard import ui
-from dashboard.data import DAY_ORDER
+Hosted on Streamlit Community Cloud, there is no `pip install -e .` and no warehouse:
+the project folder is put on the import path below, and the data layer falls back
+to the committed demo extract (see dashboard/data.py).
+"""
+import sys
+from pathlib import Path
+
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+if str(PROJECT_ROOT) not in sys.path:   # so that `from dashboard import ...` works without pip install -e .
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+import plotly.express as px  # noqa: E402  (imports after the path fix)
+import streamlit as st  # noqa: E402
+
+from dashboard import ui  # noqa: E402
+from dashboard.data import DAY_ORDER, data_source  # noqa: E402
+
+SOURCE_NOTE = {
+    "warehouse": "Data: the full DuckDB warehouse.",
+    "demo": "Data: the demo extract (order lines pre-counted per product and hour; the same numbers as the warehouse).",
+    "none": "Data: none found. Build the warehouse with `python etl/load.py`.",
+}
 
 
 def overview() -> None:
@@ -88,4 +105,6 @@ pages = [
     st.Page("views/3_Customer_Segments.py", title="Customer Segments"),
     st.Page("views/4_Reorder_Model.py", title="Reorder Model"),
 ]
-st.navigation(pages).run()
+navigation = st.navigation(pages)
+st.sidebar.caption(SOURCE_NOTE[data_source()])
+navigation.run()

@@ -27,7 +27,8 @@ def stop_on_missing(error: Exception) -> None:
     if isinstance(error, data.ResultMissing):
         st.warning(str(error))
     else:
-        st.error(f"{error}\n\nBuild the warehouse first: `python etl/load.py`")
+        st.error(f"{error}\n\nBuild the warehouse (`python etl/load.py`), or the demo extract from it "
+                 "(`python dashboard/build_demo_data.py`).")
     st.stop()
 
 
