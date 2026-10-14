@@ -146,6 +146,64 @@ def test_highlight_mask_slice_and_dice(tiny):
     assert dice.sum() == 1 * 3 * 1 and cells.loc[dice, "order_lines"].sum() == 3       # orders 2 and 3
 
 
+def test_demo_extract_gives_the_same_answers_as_the_warehouse(tiny, tmp_path):
+    """Build the demo extract from the tiny warehouse, then ask both the same questions."""
+    from dashboard.build_demo_data import build_demo_data
+    rows = build_demo_data(tiny, tmp_path)
+    assert rows == {"line_counts": 7, "dim_product": 4, "dim_time": 3, "kpis": 1}   # 7 lines, each its own product x slot
+    demo = data.open_demo_connection(tmp_path)
+    try:
+        assert data.lines_source(demo) == "line_counts l"
+        assert data.lines_source(tiny).startswith("(SELECT")
+        assert data.kpis(con=demo) == pytest.approx(data.kpis(con=tiny))
+        for ask in (
+            lambda c: data.olap_group(["Department", "Day of week"], {"hour_bands": ["Evening"]}, con=c),
+            lambda c: data.olap_rollup(["Department", "Aisle", "Product"], con=c),
+            lambda c: data.olap_pivot("Aisle", "Hour band", con=c),
+            lambda c: data.olap_cube(["Department", "Day of week", "Hour band"], con=c)[0],
+        ):
+            pd.testing.assert_frame_equal(ask(demo), ask(tiny))
+    finally:
+        demo.close()
+
+
+def test_demo_extract_counts_several_lines_per_row(tiny, tmp_path):
+    """Two order lines of the same product in the same slot become one row with n = 2."""
+    tiny.execute("INSERT INTO fact_order_line VALUES (5, 1, 0, 1)")   # Yogurt A again on Sunday 08:00
+    from dashboard.build_demo_data import build_demo_data
+    build_demo_data(tiny, tmp_path)
+    demo = data.open_demo_connection(tmp_path)
+    try:
+        assert demo.execute("SELECT n FROM line_counts WHERE product_key = 1 AND time_key = 0").fetchone()[0] == 2
+        a = data.olap_group(["Product"], con=demo).set_index("Product")["order_lines"]
+        assert a["Yogurt A"] == 4 and a.sum() == 8
+    finally:
+        demo.close()
+
+
+def test_data_source_falls_back_to_the_demo_extract(monkeypatch):
+    monkeypatch.setenv("STORESENSE_DATA", "demo")
+    assert data.data_source() == "demo"   # the demo extract is committed
+    con = data.open_connection()
+    try:
+        assert data.lines_source(con) == "line_counts l"
+    finally:
+        con.close()
+
+
+def test_committed_demo_extract_matches_the_warehouse(warehouse):
+    """If this fails, the warehouse changed: run `python dashboard/build_demo_data.py` and commit data/demo/."""
+    demo = data.open_demo_connection()
+    try:
+        assert data.kpis(con=demo) == pytest.approx(data.kpis(con=warehouse))
+        pd.testing.assert_frame_equal(data.department_totals(con=demo), data.department_totals(con=warehouse))
+        pd.testing.assert_frame_equal(data.orders_by_hour(con=demo), data.orders_by_hour(con=warehouse))
+        pd.testing.assert_frame_equal(data.olap_cube(["Aisle", "Day of week", "Hour of day"], con=demo)[0],
+                                      data.olap_cube(["Aisle", "Day of week", "Hour of day"], con=warehouse)[0])
+    finally:
+        demo.close()
+
+
 def test_values_from_the_page_are_parameters_not_sql(tiny):
     evil = "x'; DROP TABLE dim_product; --"
     r = data.olap_group(["Department"], {"departments": [evil]}, con=tiny)
