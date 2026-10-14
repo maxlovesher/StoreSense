@@ -18,6 +18,7 @@ choices = st.cache_data(show_spinner=False)(data.choices)
 olap_group = st.cache_data(show_spinner="Querying the warehouse...")(data.olap_group)
 olap_rollup = st.cache_data(show_spinner="Querying the warehouse...")(data.olap_rollup)
 olap_pivot = st.cache_data(show_spinner="Querying the warehouse...")(data.olap_pivot)
+olap_cube = st.cache_data(show_spinner="Building the cube...")(data.olap_cube)
 load_result = st.cache_data(ttl=60, show_spinner=False)(data.load_result)
 
 
