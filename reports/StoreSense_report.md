@@ -763,7 +763,7 @@ The dashboard is a **Streamlit** app with five pages. It is the one place where 
 | Page | What it shows | Where the data comes from |
 |---|---|---|
 | **Overview** | Five headline numbers (3,421,083 orders, 206,209 users, 49,688 products, an average basket of 10.11 items, a 59.0% reorder rate), orders by hour for each day, the ten biggest departments, and four findings computed from the same numbers | live queries on the warehouse |
-| **OLAP Explorer** | *Roll-up and drill-down* along the product hierarchy (department, aisle, product) or the time hierarchy (hour band, hour), with subtotals and a grand total. *Slice and dice* with filters for department, aisle, day, hour band and weekend. A *pivot heatmap* of any two dimensions | live queries on the warehouse |
+| **OLAP Explorer** | *Roll-up and drill-down* along the product hierarchy (department, aisle, product) or the time hierarchy (hour band, hour), with subtotals and a grand total. *Slice and dice* with filters for department, aisle, day, hour band and weekend. A *pivot heatmap* of any two dimensions. A rotatable **3-D cube** of any three dimensions (one ball per cell, size and colour = order lines), in which picking values on one axis highlights a slice and on several axes a dice | live queries on the warehouse |
 | **Basket Rules** | A searchable table of the association rules at aisle and product level (filters for lift and confidence, CSV download), *product recommendations* from `frequently_bought_together()`, and the Apriori vs FP-Growth benchmark | `rules_aisle.csv`, `rules_product.csv`, `benchmark.csv` |
 | **Customer Segments** | Segment sizes, how each segment differs from the average user, a 2-D (PCA) scatter plot of 10,000 users, the profile table and a store idea for each segment | `segment_profiles.csv`, `segment_pca_sample.csv` |
 | **Reorder Model** | Precision, recall, F1 and ROC-AUC of both models, feature importance of the better one, the ROC curve, and a note on how to read the numbers | `reorder_metrics.csv`, `reorder_feature_importance.csv` |
@@ -778,13 +778,13 @@ streamlit run dashboard/app.py
 
 ```
 dashboard/app.py          entry point: the Overview page and the page menu (st.navigation)
-dashboard/pages/          the four other pages, which only draw charts and tables
+dashboard/views/          the four other pages, which only draw charts and tables
 dashboard/ui.py           cached versions of the queries, and the "missing file" message
 dashboard/data.py         ALL the SQL and file reading (no Streamlit inside, so it can be tested)
 reports/results/*.csv     result files written by the mining scripts and committed to git
 ```
 
-The pages contain no SQL. They call functions in `dashboard/data.py`, which can be tested without a browser.
+The pages contain no SQL. They call functions in `dashboard/data.py`, which can be tested without a browser. The page folder is called `views/` rather than Streamlit's usual `pages/`: Streamlit treats a `pages/` folder as its older automatic page list, and a link straight to a page then skipped our page menu (the first entry showed as "app" instead of "Overview").
 
 **Design decisions**
 
@@ -799,8 +799,8 @@ The pages contain no SQL. They call functions in `dashboard/data.py`, which can 
 
 `tests/test_dashboard.py` has two parts:
 
-1. **The data layer on a tiny made-up warehouse** (7 order lines, 4 products) with answers worked out by hand: the roll-up has detail rows, subtotals and a grand total that add up; a slice (weekend) and a dice (dairy eggs in the evening) give the hand-counted numbers; a pivot keeps the days in week order and fills empty cells with 0; a filter on a time column works even when the grouping does not use the time table; and the injection test above.
-2. **Every page run headless on the real data** with Streamlit's `AppTest`: no page raises an error, the Overview shows 3,421,083 orders, 206,209 users and a 59.0% reorder rate, a filter changes the OLAP page without an error, the rules search works, and the segments page lists the segments by name. A further test checks that the columns of every committed result file match the shared contract, so a mining script that changes its output format makes a test fail before it breaks the dashboard.
+1. **The data layer on a tiny made-up warehouse** (7 order lines, 4 products) with answers worked out by hand: the roll-up has detail rows, subtotals and a grand total that add up; a slice (weekend) and a dice (dairy eggs in the evening) give the hand-counted numbers; a pivot keeps the days in week order and fills empty cells with 0; the 3-D cube has every cell, including empty ones as 0, and a slice or dice highlights the right cells; a filter on a time column works even when the grouping does not use the time table; and the injection test above.
+2. **Every page run headless on the real data** with Streamlit's `AppTest`: no page raises an error, the Overview shows 3,421,083 orders, 206,209 users and a 59.0% reorder rate, a filter changes the OLAP page without an error, the cube has 588 cells (21 departments x 7 days x 4 hour bands) and a Sunday slice holds exactly the 6,533,692 Sunday order lines of section 2, the rules search works, and the segments page lists the segments by name. A further test checks that the columns of every committed result file match the shared contract, so a mining script that changes its output format makes a test fail before it breaks the dashboard.
 
 We also opened each page in a browser and looked at it.
 
