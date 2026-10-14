@@ -794,6 +794,7 @@ The pages contain no SQL. They call functions in `dashboard/data.py`, which can 
 - **Caching.** Each query result is cached by Streamlit, so moving a slider or opening a tab again does not query 33.8M rows twice. Result files are cached for 60 seconds, so a re-run of a mining script shows up within a minute.
 - **Friendly errors.** If the warehouse or a result file is missing, the page says what is missing and which command creates it (for example `python mining/segmentation.py`), instead of showing a stack trace.
 - **The numbers are the same as in the report.** For example the OLAP Explorer's roll-up reproduces the department totals of section 2 (produce 9,888,378 order lines, grand total 33,819,106), and a query takes 0.1 to 0.3 seconds on the full data.
+- **A demo extract for hosting.** The warehouse is not in git, so a hosted copy (Streamlit Community Cloud, free, see `docs/DEPLOY.md`) would have no data. `dashboard/build_demo_data.py` writes a 4.3 MB extract to `data/demo/`: the 33.8M order lines counted per product and day-hour slot (3.0M rows), the product and time dimensions, and the five headline numbers. Every OLAP question in the dashboard groups or filters by product, aisle, department, day or hour, and none looks inside an order, so these counts answer all of them exactly. The queries count order lines as `SUM(n)`, where a warehouse row has n = 1 and an extract row holds the count, and the app uses the extract whenever the warehouse is missing. A test checks that both sources give identical tables. The extract has no orders, users or baskets.
 
 ## 6.3 How it was tested
 
@@ -806,7 +807,7 @@ We also opened each page in a browser and looked at it.
 
 ## 6.4 Limitations
 
-- **It needs the built warehouse** (about 0.23 GB, built by `python etl/load.py` in about 15 seconds) for the Overview and OLAP pages. The other three pages work from the committed result files alone.
+- **The demo extract must be rebuilt when the warehouse changes** (`python dashboard/build_demo_data.py`); a test fails until it is. Without the warehouse, the app runs on the extract, and the other three pages work from the committed result files alone.
 - **The results are a snapshot.** The dashboard shows what the mining scripts last saved. If someone rebuilds the warehouse, the segments must be recomputed (`python mining/segmentation.py`), as `etl/load.py --force` erases them.
 - **No user accounts, and no live data.** It is a single-user analysis tool, not a production application.
 - **Product-level views are limited on purpose.** A product-level roll-up has about 50,000 rows, so the page asks the user to pick a department or an aisle first.
