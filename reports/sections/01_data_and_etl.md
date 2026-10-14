@@ -68,24 +68,35 @@ Load order matters: `dim_time`, `dim_product`, `fact_order_line`, then `fact_ord
 
 ## 1.5 Results
 
-*To fill in after running the pipeline on the full dataset. These must be real numbers from the run, not estimates.*
+The full Instacart data was loaded into DuckDB with `python etl/load.py` using the schema in `sql/schema.sql`, then checked with `python etl/validate.py`.
 
 | Item | Value |
 |---|---|
-| Rows in `fact_order_line` | |
-| Rows in `fact_order` | |
-| Rows in `dim_user` | |
-| Rows in `dim_product` | |
-| Test orders kept (basket size 0) | |
-| Orders at the 30-day cap | |
-| Full load time | |
-| Validation | _ / 23 checks passed |
+| Rows in `fact_order_line` | 33,819,106 (32,434,489 prior + 1,384,617 train) |
+| Rows in `fact_order` | 3,421,083 (equal to `orders.csv`) |
+| Rows in `dim_user` | 206,209 |
+| Rows in `dim_product` | 49,688 (equal to `products.csv`) |
+| Rows in `dim_time` | 168 |
+| Test orders kept (basket size 0) | 75,000 |
+| First orders (`days_since_prior` is NULL) | 206,209, one per user |
+| Orders at the 30-day cap | 369,323 |
+| Full load time | 8.6 seconds for all five tables (single machine, DuckDB) |
+| Warehouse file size | about 0.23 GB |
+| Validation | 23 / 23 checks passed |
 
-EDA findings (from `notebooks/eda.ipynb`, run on the full warehouse):
+EDA findings (from `notebooks/eda.ipynb` and queries on the full warehouse):
 
-- *e.g. busiest day and hour:*
-- *e.g. median and mean basket size:*
-- *e.g. department with the highest reorder rate:*
+- **Users.** Every user has at least 4 orders. The mean is 16.6 and the median is 10, with a maximum of 100, so most users order a handful of times while a small group orders very often.
+- **Basket size.** Across the 3,346,083 orders that contain items, the mean basket is 10.11 items, the median is 8 and the 95th percentile is 25. The largest basket has 145 items. The mean is above the median because a few very large baskets pull it up.
+- **Reordering.** 59.0% of all order lines are reorders. The departments with the highest reorder rates are dairy eggs (67.0%), beverages (65.4%) and produce (65.1%).
+- **When people order.** Counting all 3,421,083 orders, Sunday (600,905) and Monday (587,478) are the busiest days, followed by Tuesday (467,260). The busiest hours are 10:00 (288,418 orders), 11:00 (284,728) and 15:00 (283,639). The day names rely on our assumption that `order_dow = 0` is Sunday.
+- **Best sellers.** Bananas lead with 491,291 order lines, followed by Bag of Organic Bananas (394,930) and Organic Strawberries (275,577).
+- **The 30-day cap.** 369,323 orders sit exactly at 30 days since the previous order. Because the source caps this value, they stand for "30 days or more", which is why the histogram has a tall last bar.
+
+Data quality notes:
+
+- 1,258 products fall in the dataset's own `missing` department and aisle, and 548 are in the `other` department. They are kept, not dropped, and are worth excluding from any product-level business conclusions.
+- The 75,000 test orders are real orders with unknown contents. They are kept with `basket_size = 0`, so any basket statistic filters `basket_size > 0`.
 
 ## 1.6 How to reproduce
 
