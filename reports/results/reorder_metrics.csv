@@ -1,0 +1,3 @@
+model,precision,recall,f1,roc_auc,threshold,n_train_rows,n_test_rows
+logistic_regression,0.3634,0.4955,0.4193,0.8223,0.6745,1161258,388608
+lightgbm,0.3712,0.5092,0.4294,0.8289,0.2131,1161258,388608

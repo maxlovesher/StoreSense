@@ -1,0 +1,14 @@
+model,feature,importance
+lightgbm,up_orders_since_last,0.31201
+lightgbm,up_share,0.26575
+lightgbm,up_times_bought,0.10305
+lightgbm,up_days_since_last,0.09705
+lightgbm,p_reorder_rate,0.07632
+lightgbm,u_reorder_ratio,0.03781
+lightgbm,u_distinct_products,0.02346
+lightgbm,u_avg_basket,0.01966
+lightgbm,u_avg_days_between,0.01641
+lightgbm,u_orders,0.01373
+lightgbm,p_orders,0.01317
+lightgbm,up_avg_cart_pos,0.01162
+lightgbm,p_users,0.00996
