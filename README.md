@@ -98,8 +98,9 @@ Run every command from the project root. Each script can be run on its own.
 | Customer segmentation | `python mining/segmentation.py` | 4 |
 | Reorder model (stretch) | `python mining/reorder_model.py` | 4 |
 | Dashboard | `streamlit run dashboard/app.py` | 5 |
+| Assemble the report | `python reports/build_report.py` | 6 |
 
-The OLAP demo queries are in `sql/olap_queries.sql`.
+The OLAP demo queries are in `sql/olap_queries.sql`. The mining result files the dashboard reads are in `reports/results/` (committed), the assembled report is `reports/StoreSense_report.md`, and the demo script is [docs/DEMO_FLOW.md](docs/DEMO_FLOW.md).
 
 ## 4. Repository layout
 
