@@ -22,3 +22,6 @@ venv/
 .idea/
 .DS_Store
 Thumbs.db
+
+# ...but the small mining result files ARE committed (see handoff/PHASE4_SHARED_CONTRACT.md)
+!reports/results/*.csv
