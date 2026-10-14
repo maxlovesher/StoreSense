@@ -118,6 +118,34 @@ def test_pivot_orders_the_days_and_fills_zeros(tiny):
     assert list(data.olap_pivot("Department", "Day of week", top_rows=1, con=tiny).index) == ["dairy eggs"]
 
 
+def test_cube_has_every_cell_including_empty_ones(tiny):
+    cells, axes = data.olap_cube(["Department", "Day of week", "Hour band"], con=tiny)
+    assert axes["Department"] == ["dairy eggs", "produce"]            # biggest first
+    assert axes["Day of week"] == ["Sunday", "Monday", "Saturday"]     # week order
+    assert axes["Hour band"] == ["Morning", "Evening"]                 # time order
+    assert len(cells) == 2 * 3 * 2                                     # the full cube, 12 cells
+    assert cells["order_lines"].sum() == 7                             # every order line, once
+    cell = cells.set_index(["Department", "Day of week", "Hour band"])["order_lines"]
+    assert cell[("dairy eggs", "Monday", "Evening")] == 2              # order 2
+    assert cell[("produce", "Monday", "Evening")] == 0                 # an empty cell is there, as 0
+    assert cell[("dairy eggs", "Sunday", "Evening")] == 0
+
+
+def test_cube_keeps_only_the_biggest_values_of_a_long_axis(tiny):
+    cells, axes = data.olap_cube(["Aisle", "Day of week", "Hour band"], top_values=2, con=tiny)
+    assert axes["Aisle"] == ["yogurt", "fresh fruits"]                 # 4 and 2 lines; milk (1) is dropped
+    assert set(cells["Aisle"]) == {"yogurt", "fresh fruits"}
+
+
+def test_highlight_mask_slice_and_dice(tiny):
+    cells, _ = data.olap_cube(["Department", "Day of week", "Hour band"], con=tiny)
+    assert data.highlight_mask(cells, {}).all()                                   # no picks: the whole cube
+    slice_ = data.highlight_mask(cells, {"Day of week": ["Sunday"]})
+    assert slice_.sum() == 2 * 1 * 2 and cells.loc[slice_, "order_lines"].sum() == 3   # order 1
+    dice = data.highlight_mask(cells, {"Department": ["dairy eggs"], "Hour band": ["Evening"], "Day of week": []})
+    assert dice.sum() == 1 * 3 * 1 and cells.loc[dice, "order_lines"].sum() == 3       # orders 2 and 3
+
+
 def test_values_from_the_page_are_parameters_not_sql(tiny):
     evil = "x'; DROP TABLE dim_product; --"
     r = data.olap_group(["Department"], {"departments": [evil]}, con=tiny)
@@ -166,10 +194,10 @@ def test_result_columns_match_the_shared_contract():
 # ---------------------------------------------------------------------------
 PAGES = [
     "app.py",
-    "pages/1_OLAP_Explorer.py",
-    "pages/2_Basket_Rules.py",
-    "pages/3_Customer_Segments.py",
-    "pages/4_Reorder_Model.py",
+    "views/1_OLAP_Explorer.py",
+    "views/2_Basket_Rules.py",
+    "views/3_Customer_Segments.py",
+    "views/4_Reorder_Model.py",
 ]
 
 
@@ -195,22 +223,34 @@ def test_overview_shows_the_real_numbers(warehouse):
 
 
 def test_olap_page_reacts_to_a_filter(warehouse):
-    at = run_page("pages/1_OLAP_Explorer.py")
+    at = run_page("views/1_OLAP_Explorer.py")
     assert not at.exception
     at.sidebar.checkbox[0].check().run()   # weekend only
     assert not at.exception, [e.value for e in at.exception]
     assert "weekend" in " ".join(s.value for s in at.sidebar.success)
 
 
+def test_cube_tab_highlights_a_slice(warehouse):
+    at = run_page("views/1_OLAP_Explorer.py")
+    cube_metric = next(m for m in at.metric if m.label == "Cells in the cube")
+    assert cube_metric.value == "588"                                  # 21 departments x 7 days x 4 hour bands
+    pick = next(w for w in at.multiselect if w.key and w.key.startswith("cube_pick_1_"))   # the day axis
+    pick.set_value(["Sunday"]).run()
+    assert not at.exception, [e.value for e in at.exception]
+    labels = {m.label: m.value for m in at.metric}
+    assert labels["Cells in a slice"] == "84"                          # 21 x 1 x 4
+    assert labels["Order lines in a slice"] == "6,533,692"             # all Sunday order lines (section 2)
+
+
 def test_rules_page_search(warehouse):
-    at = run_page("pages/2_Basket_Rules.py")
+    at = run_page("views/2_Basket_Rules.py")
     at.text_input[0].input("pasta").run()
     assert not at.exception, [e.value for e in at.exception]
     assert any("rules" in m.value for m in at.markdown)   # the "N of M rules" line
 
 
 def test_segments_page_names_the_four_segments(warehouse):
-    at = run_page("pages/3_Customer_Segments.py")
+    at = run_page("views/3_Customer_Segments.py")
     labels = " ".join(e.label for e in at.expander)
     for name in ("Loyal frequent shopper", "Occasional small basket"):
         assert name in labels

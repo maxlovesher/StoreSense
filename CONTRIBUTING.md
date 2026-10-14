@@ -24,7 +24,7 @@ Every team member must contribute to this repository from **their own GitHub acc
 | 3 | Association Rules | `feature/association-rules` | `mining/association_rules.py`, `mining/benchmark.py` |
 | 4 | Customer Segmentation | `feature/segmentation` | `mining/segmentation.py` |
 | 5 | Reorder Prediction | `feature/reorder-model` | `mining/reorder_model.py` |
-| 6 | Dashboard & Integration | `feature/dashboard` | `dashboard/app.py`, `dashboard/pages/` |
+| 6 | Dashboard & Integration | `feature/dashboard` | `dashboard/app.py`, `dashboard/views/` |
 
 If you need to change a file someone else owns, tell them first.
 

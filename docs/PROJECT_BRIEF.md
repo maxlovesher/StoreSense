@@ -155,7 +155,7 @@ storesense/
 │   └── reorder_model.py
 ├── dashboard/
 │   ├── app.py
-│   └── pages/
+│   └── views/               # the other pages (named views/, not pages/, so that st.navigation is used)
 ├── notebooks/
 │   └── eda.ipynb
 ├── reports/figures/

@@ -207,6 +207,50 @@ def olap_pivot(row_dim: str, col_dim: str, filters: dict | None = None, top_rows
     return matrix
 
 
+# Dimensions that make a readable cube axis. Product is left out (about 50,000 values).
+CUBE_DIMENSIONS = ["Department", "Aisle", "Day of week", "Hour band", "Hour of day"]
+
+
+def axis_values(dim: str, totals: pd.Series, top_values: int) -> list:
+    """The values along one cube axis, in a natural order: week order for days, time order for hours,
+    otherwise the biggest first. Aisles (134 of them) keep only the top_values biggest, so the axis stays readable."""
+    if dim == "Day of week":
+        return [d for d in DAY_ORDER if d in totals.index]
+    if dim == "Hour band":
+        return [b for b in BAND_ORDER if b in totals.index]
+    if dim == "Hour of day":
+        return sorted(totals.index)
+    biggest = list(totals.sort_values(ascending=False).index)
+    return biggest[:top_values] if dim == "Aisle" else biggest
+
+
+def olap_cube(dims: list[str], filters: dict | None = None, top_values: int = 15, con=None) -> tuple[pd.DataFrame, dict]:
+    """
+    Every cell of a 3-D cube: one row per combination of the three dimensions, with its
+    order lines. Combinations with no sales are included as 0, so the cube is complete.
+    Returns (cells, axes), where axes gives the ordered values along each dimension.
+    """
+    long = olap_group(dims, filters, con=con)[dims + ["order_lines"]]
+    axes = {d: axis_values(d, long.groupby(d)["order_lines"].sum(), top_values) for d in dims}
+    for d in dims:
+        long = long[long[d].isin(axes[d])]
+    full = pd.MultiIndex.from_product([axes[d] for d in dims], names=dims)
+    cells = long.set_index(dims)["order_lines"].reindex(full, fill_value=0).reset_index()
+    return cells, axes
+
+
+def highlight_mask(cells: pd.DataFrame, picks: dict) -> pd.Series:
+    """
+    Which cells are in the slice or dice: a cell is in it when, on every axis where
+    values were picked, its value is one of them. No picks at all = the whole cube.
+    """
+    mask = pd.Series(True, index=cells.index)
+    for dim, values in picks.items():
+        if values:
+            mask &= cells[dim].isin(values)
+    return mask
+
+
 def choices(con=None) -> dict:
     """The values for the filter widgets: departments, aisles per department, days and hour bands."""
     prod = run_query("SELECT DISTINCT department, aisle FROM dim_product ORDER BY department, aisle", con=con)
