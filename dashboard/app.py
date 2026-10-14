@@ -6,7 +6,7 @@ Spec:  docs/PROJECT_BRIEF.md, section 6.6
 
 Overview page with the headline numbers and the main shape of demand. The other
 pages (OLAP Explorer, Basket Rules, Customer Segments, Reorder Model) are in
-dashboard/pages/ and are listed in the sidebar by st.navigation below, so the
+dashboard/views/ and are listed in the sidebar by st.navigation below, so the
 first entry is called "Overview" instead of the file name.
 
 Run from the project root:
@@ -83,9 +83,9 @@ def overview() -> None:
 st.set_page_config(page_title="StoreSense", layout="wide")
 pages = [
     st.Page(overview, title="Overview", default=True),
-    st.Page("pages/1_OLAP_Explorer.py", title="OLAP Explorer"),
-    st.Page("pages/2_Basket_Rules.py", title="Basket Rules"),
-    st.Page("pages/3_Customer_Segments.py", title="Customer Segments"),
-    st.Page("pages/4_Reorder_Model.py", title="Reorder Model"),
+    st.Page("views/1_OLAP_Explorer.py", title="OLAP Explorer"),
+    st.Page("views/2_Basket_Rules.py", title="Basket Rules"),
+    st.Page("views/3_Customer_Segments.py", title="Customer Segments"),
+    st.Page("views/4_Reorder_Model.py", title="Reorder Model"),
 ]
 st.navigation(pages).run()
