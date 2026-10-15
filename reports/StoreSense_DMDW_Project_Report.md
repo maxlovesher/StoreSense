@@ -13,7 +13,7 @@ subtitle: "Project Report — Data Mining and Data Warehousing (DMDW)"
 A project report submitted for the course\
 **Data Mining and Data Warehousing (DMDW)**
 
-by
+by **Group 1**
 
 | # | Name | Roll / Registration No. | GitHub |
 |---|---|---|---|

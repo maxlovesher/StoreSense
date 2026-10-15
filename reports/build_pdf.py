@@ -415,6 +415,7 @@ def cover_html(md: str, title_page: str) -> str:
     year = re.search(r"Academic Year: (.+?)\\?$", title_page, flags=re.M).group(1)
     date = re.search(r"Date of Submission: (.+?)\\?$", title_page, flags=re.M).group(1)
     course = re.search(r"\*\*(Data Mining.+?)\*\*", title_page).group(1)
+    group = re.search(r"^by \*\*(.+?)\*\*$", title_page, flags=re.M).group(1)
     team = "".join(f'<tr><td>{html.escape(n)}</td><td class="roll">{html.escape(r)}</td></tr>' for n, r in rows)
     e = html.escape
     return f"""<div class="cover">
@@ -426,7 +427,7 @@ def cover_html(md: str, title_page: str) -> str:
     <div class="cover-sub">{e(subtitle)}</div>
     <div class="cover-course">Submitted for the course <b>{e(course)}</b></div>
     <div class="cover-cols">
-      <div class="cover-col"><h4>Submitted by</h4><table class="cover-team">{team}</table></div>
+      <div class="cover-col"><h4>Submitted by {e(group)}</h4><table class="cover-team">{team}</table></div>
       <div class="cover-col"><h4>Under the guidance of</h4><div class="cover-guide">
         <div class="name">{e(guide[0])}</div>{''.join(f'<div class="role">{e(g)}</div>' for g in guide[1:])}</div></div>
     </div>
