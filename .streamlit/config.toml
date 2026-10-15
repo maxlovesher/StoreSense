@@ -1,0 +1,16 @@
+# Streamlit settings for the StoreSense dashboard. Streamlit reads this file when the app is
+# started from the project root (streamlit run dashboard/app.py) and on Streamlit Community Cloud.
+
+[theme]
+base = "light"
+primaryColor = "#1d4e89"
+backgroundColor = "#ffffff"
+secondaryBackgroundColor = "#f3f6fa"
+textColor = "#18212d"
+
+[client]
+# Hide the developer toolbar (the "Deploy" button and the developer menu) for viewers.
+toolbarMode = "minimal"
+
+[browser]
+gatherUsageStats = false
