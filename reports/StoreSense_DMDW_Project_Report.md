@@ -3,8 +3,6 @@ title: "StoreSense: Retail Data Warehouse and Market Basket Analysis"
 subtitle: "Project Report — Data Mining and Data Warehousing (DMDW)"
 ---
 
-<!-- Items in [square brackets] are placeholders. Replace each one before submission; they are all listed in the checklist at the end. -->
-
 # Title Page
 
 <div align="center">
@@ -19,77 +17,25 @@ by
 
 | # | Name | Roll / Registration No. | GitHub |
 |---|---|---|---|
-| 1 | Manish Sarkar | [Roll No.] | @maxlovesher |
-| 2 | Kavya [Surname] | [Roll No.] | @Kavya-025 |
-| 3 | [Full name of member 3] | [Roll No.] | @KB-0141 |
-| 4 | Manish Dey | [Roll No.] | @foresto-dreamer |
-| 5 | Animesh Prakash | [Roll No.] | @DIO4699 |
-| 6 | Rohit Gupta | [Roll No.] | @rohitguptanit7070-lab |
+| 1 | Manish Sarkar | 24051496 | @maxlovesher |
+| 2 | Kavya Agarwal | 24052086 | @Kavya-025 |
+| 3 | Kartik Biswal | 24051938 | @KB-0141 |
+| 4 | Manish Dey | 24051562 | @foresto-dreamer |
+| 5 | Animesh Prakash | 24051610 | @DIO4699 |
+| 6 | Rohit Gupta | 24052654 | @rohitguptanit7070-lab |
 
 Under the guidance of\
-**[Name of faculty guide]**, [Designation]
+**Dr. Chittaranjan Pradhan**\
+Associate Professor, School of Computer Engineering
 
-[School / Department]\
-KIIT [full institution name, e.g. as printed on official documents]\
-[City, State]
+School of Computer Science and Engineering\
+Kalinga Institute of Industrial Technology (KIIT)\
+Bhubaneswar, Odisha
 
-Academic Year: [2026–27]\
-Date of Submission: [DD Month YYYY]
+Academic Year: 2026–27\
+Date of Submission: 15 October 2026
 
 </div>
-
----
-
-# Certificate
-
-This is to certify that the project report entitled **"StoreSense: Retail Data Warehouse and Market Basket Analysis"**, submitted by the students listed below in partial fulfilment of the requirements of the course **Data Mining and Data Warehousing (DMDW)** at [School / Department], KIIT [institution name], is a record of the work carried out by them under my supervision during the academic year [2026–27].
-
-| Name | Roll / Registration No. |
-|---|---|
-| Manish Sarkar | [Roll No.] |
-| Kavya [Surname] | [Roll No.] |
-| [Full name of member 3] | [Roll No.] |
-| Manish Dey | [Roll No.] |
-| Animesh Prakash | [Roll No.] |
-| Rohit Gupta | [Roll No.] |
-
-&nbsp;
-
-Signature of the Guide: ______________________\
-Name: [Name of faculty guide]\
-Designation: [Designation]\
-Date: ____________
-
-&nbsp;
-
-Signature of the Head of Department / Course Coordinator (if required): ______________________
-
----
-
-# Declaration
-
-We declare that this report, **"StoreSense: Retail Data Warehouse and Market Basket Analysis"**, presents work carried out by our team for the course Data Mining and Data Warehousing (DMDW). Where we used the work of others (the Instacart dataset, open-source libraries, published algorithms and documentation), we have acknowledged it in the text and in the References. This report has not been submitted for any other course or degree.
-
-[If your institution requires it, add a statement here on the use of AI-assisted tools (for example code assistants) during development and report writing, describing what they were used for. See the checklist at the end of this report.]
-
-| Name | Roll / Registration No. | Signature | Date |
-|---|---|---|---|
-| Manish Sarkar | [Roll No.] | | |
-| Kavya [Surname] | [Roll No.] | | |
-| [Full name of member 3] | [Roll No.] | | |
-| Manish Dey | [Roll No.] | | |
-| Animesh Prakash | [Roll No.] | | |
-| Rohit Gupta | [Roll No.] | | |
-
----
-
-# Acknowledgement
-
-We thank our faculty guide, [Name of faculty guide], for the guidance and feedback given during this project, and [School / Department], KIIT, for including a hands-on project in the Data Mining and Data Warehousing course.
-
-We acknowledge Instacart for releasing the *Instacart Online Grocery Shopping Dataset 2017* through Kaggle, and the developers of DuckDB, pandas, scikit-learn, mlxtend, LightGBM, Plotly, Matplotlib and Streamlit, whose open-source software the project is built on.
-
-Finally, each of us thanks the other members of the team. The project was split into six modules, and every module depended on the work of the others.
 
 ---
 
@@ -113,10 +59,6 @@ Finally, each of us thanks the other members of the team. The project was split 
 
 *Page numbers are left out of this Markdown version. After the report is imported into Microsoft Word, insert an automatic table of contents (References → Table of Contents) to generate them.*
 
-- Title Page
-- Certificate
-- Declaration
-- Acknowledgement
 - Abstract
 - List of Figures
 - List of Tables
@@ -155,8 +97,6 @@ References
 Appendices
 A. Repository and reproduction · B. Warehouse schema (DDL) · C. OLAP query catalogue · D. Result files · E. Complete automated test list · F. Detailed GitHub evidence
 
-Information to Confirm Before Submission
-
 ---
 
 # List of Figures
@@ -169,6 +109,12 @@ Information to Confirm Before Submission
 | 6.4 | Entity-relationship view of the star schema | 6.6 |
 | 6.5 | ETL activity flow | 6.6 |
 | 6.6 | Sequence of an OLAP Explorer query | 6.6 |
+| 9.1 | Overview page | 9.6 |
+| 9.2 | OLAP Explorer, roll-up and drill-down tab | 9.6 |
+| 9.3 | OLAP Explorer, 3-D cube tab | 9.6 |
+| 9.4 | Basket Rules page | 9.6 |
+| 9.5 | Customer Segments page | 9.6 |
+| 9.6 | Reorder Model page | 9.6 |
 | 8.1 | Star schema diagram (from the team's DBML source) | 8.3 |
 | 10.1 | Runtime of the mining step: Apriori vs FP-Growth | 10.4 |
 | 10.2 | Peak memory of the mining step: Apriori vs FP-Growth | 10.4 |
@@ -177,6 +123,7 @@ Information to Confirm Before Submission
 | 10.5 | The four segments projected onto two principal components | 10.5 |
 | 10.6 | ROC curves of the two reorder models on the test users | 10.6 |
 | 10.7 | LightGBM feature importance | 10.6 |
+| 12.1 | Dependencies between modules | 12.7 |
 
 # List of Tables
 
@@ -569,56 +516,38 @@ Steps 5–7 are optional for running the dashboard, because their result files a
 **Figure 6.1 – Overall architecture of StoreSense**
 
 ```mermaid
-flowchart LR
-    subgraph SRC["Source layer (data/raw, not in git)"]
-        CSV["orders.csv<br/>order_products__prior.csv<br/>order_products__train.csv<br/>products.csv · aisles.csv · departments.csv"]
-    end
-
+flowchart TB
+    CSV["Raw data: data/raw (not in git)<br/>orders · order_products__prior · order_products__train<br/>products · aisles · departments"]
     subgraph ETL["ETL (etl/)"]
-        EX["extract.py<br/>DuckDB views"]
-        TR["transform.py<br/>one SELECT per table"]
-        LD["load.py<br/>schema.sql + INSERT…SELECT"]
-        VA["validate.py<br/>23 checks"]
+        direction LR
+        EX["extract.py<br/>DuckDB views"] --> TR["transform.py<br/>one SELECT per table"] --> LD["load.py<br/>schema.sql + INSERT…SELECT"] --> VA["validate.py<br/>23 checks"]
     end
-
-    subgraph WH["Warehouse (DuckDB file)"]
-        F1[("fact_order_line")]
-        F2[("fact_order")]
-        D1[("dim_product")]
-        D2[("dim_user")]
-        D3[("dim_time")]
+    subgraph WH["Warehouse (DuckDB star schema)"]
+        direction LR
+        F1[("fact_order_line")] ~~~ F2[("fact_order")] ~~~ D1[("dim_product")] ~~~ D2[("dim_user<br/>segment ← segmentation.py")] ~~~ D3[("dim_time")]
     end
-
     subgraph AN["Analysis"]
-        OL["OLAP queries<br/>sql/olap_queries.sql"]
-        AR["association_rules.py<br/>+ benchmark.py"]
-        SG["segmentation.py"]
-        RM["reorder_model.py"]
+        direction LR
+        OL["OLAP queries<br/>sql/olap_queries.sql"] ~~~ AR["association_rules.py<br/>+ benchmark.py"] ~~~ SG["segmentation.py"] ~~~ RM["reorder_model.py"]
     end
-
-    RES[["reports/results/*.csv<br/>reports/figures/*.png"]]
-    DEMO[["data/demo/*.parquet<br/>(4.3 MB extract)"]]
-
+    RES[["Result files<br/>reports/results/∗.csv · reports/figures/∗.png"]]
+    DEMO[["Demo extract<br/>data/demo/*.parquet (4.3 MB)"]]
     subgraph UI["Dashboard (Streamlit)"]
-        DL["data.py / ui.py"]
-        PG["Overview · OLAP Explorer · Basket Rules ·<br/>Customer Segments · Reorder Model"]
+        direction LR
+        DL["data.py / ui.py"] --> PG["Overview · OLAP Explorer · Basket Rules ·<br/>Customer Segments · Reorder Model"]
     end
-
-    CSV --> EX --> TR --> LD --> WH
-    WH --> VA
-    WH --> OL
-    WH --> AR --> RES
-    WH --> SG --> RES
-    SG -- "UPDATE dim_user.segment" --> D2
-    WH --> RM --> RES
-    CSV -. "eval_set only" .-> RM
+    CSV --> ETL
+    ETL --> WH
+    WH --> AN
+    CSV -...->|"eval_set only (reorder model)"| AN
+    AN --> RES
     WH --> DEMO
-    WH -- "read-only" --> DL
-    DEMO -. "if warehouse missing" .-> DL
-    RES --> DL --> PG
+    WH -- "read-only queries" --> UI
+    DEMO -. "if warehouse missing" .-> UI
+    RES --> UI
 ```
 
-The diagram shows only components that exist in the repository. The dotted arrows are the two special paths: the reorder model reads `eval_set` directly from `orders.csv`, because the warehouse does not store it, and the dashboard falls back to the demo extract when the warehouse file is absent.
+The diagram shows only components that exist in the repository. The dotted arrows are the two special paths: the reorder model reads `eval_set` directly from `orders.csv`, because the warehouse does not store it, and the dashboard falls back to the demo extract when the warehouse file is absent. The segmentation step also writes `dim_user.segment` back into the warehouse, as noted on the `dim_user` table.
 
 ## 6.6 Additional Diagrams
 
@@ -660,19 +589,19 @@ The dashboard has no login, so the analyst and the evaluator use the same functi
 
 ```mermaid
 flowchart TB
-    K["Kaggle (external source)"] -- "6 CSV files" --> P1(("1. Extract"))
-    P1 -- "raw_* views" --> P2(("2. Transform & load"))
+    K["Kaggle (external source)"] -- "6 CSV files" --> P1(("1.0 Extract"))
+    P1 -- "raw_* views" --> P2(("2.0 Transform & load"))
     P2 -- "5 tables" --> DS1[("D1: Warehouse")]
-    DS1 --> P3(("3. Validate"))
+    DS1 --> P3(("3.0 Validate"))
     P3 -- "23 pass/fail results" --> Dev["Developer"]
-    DS1 -- "order lines + products" --> P4(("4. Mine rules"))
-    DS1 -- "orders + users" --> P5(("5. Segment users"))
+    DS1 -- "order lines + products" --> P4(("4.0 Mine rules"))
+    DS1 -- "orders + users" --> P5(("5.0 Segment users"))
     P5 -- "segment names" --> DS1
-    DS1 -- "prior-order history" --> P6(("6. Predict reorders"))
+    DS1 -- "prior-order history" --> P6(("6.0 Predict reorders"))
     P4 --> DS2[("D2: Result files")]
     P5 --> DS2
     P6 --> DS2
-    DS1 -- "aggregated queries" --> P7(("7. Present"))
+    DS1 -- "aggregated queries" --> P7(("7.0 Present"))
     DS2 --> P7
     P7 -- "charts, tables, recommendations" --> User["Analyst / evaluator"]
 ```
@@ -1165,7 +1094,31 @@ The Streamlit dashboard has five pages, listed in a sidebar menu:
 | **Customer Segments** | Segment sizes; how each segment differs from the average user; PCA scatter of 10,000 users; profile table; a suggested store action per segment |
 | **Reorder Model** | Metrics of both models; feature importance; ROC curve; guidance on reading the numbers |
 
-*Screenshots:* the repository does not contain screenshots of the dashboard. They should be captured from the running app and inserted here before submission (see the checklist): Overview, each OLAP tab, Basket Rules, Customer Segments and Reorder Model.
+*Screenshots* (taken on 15 October 2026 from the dashboard running locally on the full warehouse, light theme):
+
+**Figure 9.1 – Overview page: headline KPIs, orders by hour for each day, top departments**
+
+![Overview page: headline KPIs, orders by hour for each day, top departments](figures/dashboard_overview.png)
+
+**Figure 9.2 – OLAP Explorer, roll-up and drill-down tab (department > aisle, grand total 33,819,106)**
+
+![OLAP Explorer, roll-up and drill-down tab (department > aisle, grand total 33,819,106)](figures/dashboard_olap_rollup.png)
+
+**Figure 9.3 – OLAP Explorer, 3-D cube tab (department × day of week × hour band, 588 cells)**
+
+![OLAP Explorer, 3-D cube tab (department × day of week × hour band, 588 cells)](figures/dashboard_olap_cube.png)
+
+**Figure 9.4 – Basket Rules page: aisle-level rules sorted by lift, with filters and plain-English interpretations**
+
+![Basket Rules page: aisle-level rules sorted by lift, with filters and plain-English interpretations](figures/dashboard_rules.png)
+
+**Figure 9.5 – Customer Segments page: segment sizes and each segment against the average user**
+
+![Customer Segments page: segment sizes and each segment against the average user](figures/dashboard_segments.png)
+
+**Figure 9.6 – Reorder Model page: headline metrics, the two models compared, feature importance**
+
+![Reorder Model page: headline metrics, the two models compared, feature importance](figures/dashboard_reorder.png)
 
 ## 9.7 Integration
 
@@ -1173,7 +1126,7 @@ Modules are integrated through **files and a fixed contract**, not through funct
 
 1. The **schema** (`sql/schema.sql`) is the contract between the warehouse design and the ETL: the ETL inserts by column name.
 2. The **warehouse** is the contract between the ETL and the mining modules.
-3. A **result-file contract** fixes the file names and exact columns that the mining scripts write and the dashboard reads. `tests/test_dashboard.py::test_result_columns_match_the_shared_contract` fails if a script changes its output format. (The written contract, `handoff/PHASE4_SHARED_CONTRACT.md`, exists in the repository owner's working copy but is excluded from git, so it is not in the GitHub repository; see the checklist.)
+3. A **result-file contract** fixes the file names and exact columns that the mining scripts write and the dashboard reads. `tests/test_dashboard.py::test_result_columns_match_the_shared_contract` fails if a script changes its output format. (The written contract, `handoff/PHASE4_SHARED_CONTRACT.md`, exists in the repository owner's working copy but is excluded from git, so it is not in the GitHub repository.)
 4. The only function call across modules is `frequently_bought_together()` from `mining/association_rules.py`, used by the Basket Rules page.
 
 ## 9.8 Important Code Examples
@@ -1465,7 +1418,7 @@ These are patterns in historical data. None of them has been tested as an interv
 | **System / functional tests** | Every dashboard page run headless with Streamlit `AppTest`, checking for errors and for the real headline numbers; the rules search; a filter on the OLAP page; the 3-D cube slice | `tests/test_dashboard.py` |
 | **Security test** | An SQL-injection string sent as a filter value; the test checks that no table is dropped | `test_values_from_the_page_are_parameters_not_sql` |
 | **Contract and regression tests** | Result-file columns match the shared contract; the committed report is up to date with its sections; the committed demo extract matches the warehouse | `test_dashboard.py`, `test_report.py` |
-| **Manual testing** | The team reports opening each dashboard page in a browser (`reports/sections/06_dashboard.md`) | Self-reported; not independently re-verified for this report |
+| **Manual testing** | Each dashboard page opened in a browser on the full warehouse and checked by eye on 15 Oct 2026 (Figures 9.1–9.6); the team also reports doing this (`reports/sections/06_dashboard.md`) | Done for the pages shown in Section 9.6 |
 | **Usability testing** | Not performed | — |
 
 **Test run used for this report:** `python -m pytest -q` on 15 October 2026, branch `feature/deploy` at commit `b61f423`, Windows 11, Python 3.13.9, with the full warehouse and raw data present: **90 passed, 0 failed** (2 warnings, in 26.7 s). `python etl/validate.py`: **23/23 checks passed**.
@@ -1512,7 +1465,7 @@ These are patterns in historical data. None of them has been tested as an interv
 | TC-34 | Dashboard | Cube tab Sunday slice | Department × day × band | 588 cells; Sunday slice = 6,533,692 lines | As expected | Pass |
 | TC-35 | Dashboard | Result files match the contract | Committed CSVs | Exact column names | As expected | Pass |
 | TC-36 | Report | Committed assembled report is up to date | Sections 00–07 | Rebuilt text equals committed file | As expected | Pass |
-| TC-37 | Dashboard | Pages look correct in a browser | Manual inspection | Readable charts and tables | Reported by the team | Pending Verification |
+| TC-37 | Dashboard | Pages look correct in a browser | Manual inspection of the five pages | Readable charts and tables, real numbers | As expected (Figures 9.1–9.6) | Pass |
 | TC-38 | Deployment | Hosted app on Streamlit Community Cloud loads and runs from the demo extract | App URL | All five pages work | Not verified for this report | Pending Verification |
 | TC-39 | Usability | Users complete typical tasks | Task list, test users | Tasks completed | Not performed | Pending Verification |
 
@@ -1522,7 +1475,8 @@ The complete list of the 90 automated tests is in Appendix E.
 
 - **Confirmed:** all 90 automated tests passed and all 23 warehouse checks passed on 15 October 2026, with the full data present. This includes the tests that run against the real warehouse.
 - **Warnings:** the run reported 2 warnings, which did not affect any result. They were not investigated for this report.
-- **Pending:** a manual check of each page's appearance (reported by the team but not re-verified), confirmation that the hosted deployment works, and any usability testing.
+- **Manual check:** every page was opened in a browser and checked by eye on 15 October 2026 (Figures 9.1–9.6).
+- **Pending:** confirmation that the hosted deployment works, and any usability testing.
 - **Not covered by tests:** the exact numerical results of the full mining runs (they depend on the data and take minutes; they are recorded in the result files), and the visual layout on different screen sizes.
 
 
@@ -1544,12 +1498,12 @@ This chapter states who was responsible for each part of StoreSense and what evi
 
 | Team Member | Registration Number | Assigned Role | Main Responsibilities |
 |---|---|---|---|
-| Manish Sarkar (@maxlovesher) | [Roll No.] | Member 1 – Data & ETL Lead | Extract, transform, load and validate scripts; data validation; EDA notebook; shared database helper; project skeleton and project brief; owner of the GitHub repository |
-| Kavya [Surname] (@Kavya-025) | [Roll No.] | Member 2 – Warehouse & OLAP | Star schema (`sql/schema.sql`); OLAP queries (`sql/olap_queries.sql`); star schema diagram; warehouse and OLAP report section |
-| [Full name of member 3] (@KB-0141) | [Roll No.] | Member 3 – Association Rules | Apriori and FP-Growth at aisle and product level; rule interpretation; Apriori vs FP-Growth benchmark; association rules report section |
-| Manish Dey (@foresto-dreamer) | [Roll No.] | Member 4 – Customer Segmentation | RFM-style features; K-Means; choice of k; cluster profiling and naming; write-back to `dim_user.segment`; segmentation report section |
-| Animesh Prakash (@DIO4699) | [Roll No.] | Member 5 – Reorder Prediction & Evaluation | Reorder classification (Logistic Regression, LightGBM); leakage control; metrics; model comparison; reorder report section |
-| Rohit Gupta (@rohitguptanit7070-lab) | [Roll No.] | Member 6 – Dashboard & Integration | Streamlit dashboard; connecting all modules; report assembly; demo flow; hosting set-up |
+| Manish Sarkar (@maxlovesher) | 24051496 | Member 1 – Data & ETL Lead | Extract, transform, load and validate scripts; data validation; EDA notebook; shared database helper; project skeleton and project brief; owner of the GitHub repository |
+| Kavya Agarwal (@Kavya-025) | 24052086 | Member 2 – Warehouse & OLAP | Star schema (`sql/schema.sql`); OLAP queries (`sql/olap_queries.sql`); star schema diagram; warehouse and OLAP report section |
+| Kartik Biswal (@KB-0141) | 24051938 | Member 3 – Association Rules | Apriori and FP-Growth at aisle and product level; rule interpretation; Apriori vs FP-Growth benchmark; association rules report section |
+| Manish Dey (@foresto-dreamer) | 24051562 | Member 4 – Customer Segmentation | RFM-style features; K-Means; choice of k; cluster profiling and naming; write-back to `dim_user.segment`; segmentation report section |
+| Animesh Prakash (@DIO4699) | 24051610 | Member 5 – Reorder Prediction & Evaluation | Reorder classification (Logistic Regression, LightGBM); leakage control; metrics; model comparison; reorder report section |
+| Rohit Gupta (@rohitguptanit7070-lab) | 24052654 | Member 6 – Dashboard & Integration | Streamlit dashboard; connecting all modules; report assembly; demo flow; hosting set-up |
 
 ## 12.2 Work Allocation Across the Project
 
@@ -1584,8 +1538,8 @@ This chapter states who was responsible for each part of StoreSense and what evi
 | Team Member / GitHub Identity | Commits or Changes Identified | Relevant Files or Modules | Evidence of Contribution | Limitations |
 |---|---|---|---|---|
 | Manish Sarkar / @maxlovesher (commits authored as "ocean" with an e-mail address that GitHub links to @maxlovesher) | 4 authored commits (3 and 11 Oct); 2 PR merges (#4, #6); opened 8 of the 9 PRs | Project skeleton (23 files incl. brief, README, CONTRIBUTING, requirements); `common/db.py`; `pyproject.toml`; `etl/*.py`; `tests/test_etl.py`, `test_common_db.py`, fixture schema; `notebooks/eda.ipynb`; report section 01 | ETL implementation (+801 lines in `4b96dd0`), EDA notebook, shared helper | The 3 commits of 11 Oct share one timestamp (14:17:00) |
-| Kavya / @Kavya-025 | 5 authored commits (14 Oct); 6 PR merges (#1, #3, #5, #7, #8, #9); opened PR #2 | `sql/schema.sql`, `sql/olap_queries.sql`, `star_schema.dbml/.png`, report section 02; results added to section 01 | Schema, OLAP queries, diagram; most merges into `main` | The 4 warehouse commits share one timestamp (22:57:39) |
-| [Member 3] / @KB-0141 | 4 authored commits (14 Oct); 1 PR merge (#2) | `mining/association_rules.py`, `mining/benchmark.py`, `tests/test_rules.py`, rule and benchmark result files and charts, report section 03 | Rule mining, benchmark, tests | All 4 commits share one timestamp (23:51:11); the PR was opened from @maxlovesher |
+| Kavya Agarwal / @Kavya-025 | 5 authored commits (14 Oct); 6 PR merges (#1, #3, #5, #7, #8, #9); opened PR #2 | `sql/schema.sql`, `sql/olap_queries.sql`, `star_schema.dbml/.png`, report section 02; results added to section 01 | Schema, OLAP queries, diagram; most merges into `main` | The 4 warehouse commits share one timestamp (22:57:39) |
+| Kartik Biswal / @KB-0141 | 4 authored commits (14 Oct); 1 PR merge (#2) | `mining/association_rules.py`, `mining/benchmark.py`, `tests/test_rules.py`, rule and benchmark result files and charts, report section 03 | Rule mining, benchmark, tests | All 4 commits share one timestamp (23:51:11); the PR was opened from @maxlovesher |
 | Manish Dey / @foresto-dreamer | 4 authored commits (15 Oct) | `mining/segmentation.py`, `tests/test_segmentation.py`, segment result files, 3 charts, report section 04 | Segmentation, tests | All 4 commits share one timestamp (00:09:44); the PR was opened from @maxlovesher |
 | Animesh Prakash / @DIO4699 | 4 authored commits (15 Oct) | `mining/reorder_model.py`, `tests/test_reorder.py`, reorder result files, 2 charts, report section 05 | Reorder model, leakage tests | Commits within one second (00:43:16–17); the PR was opened from @maxlovesher; @DIO4699 was not in the repository's collaborator list on 15 Oct 2026 |
 | Rohit Gupta / @rohitguptanit7070-lab | 12 authored commits (15 Oct) | `dashboard/*`, `data/demo/*`, `tests/test_dashboard.py`, `tests/test_report.py`, `reports/build_report.py`, sections 00, 06, 07, `StoreSense_report.md`, `docs/DEMO_FLOW.md`, `docs/DEPLOY.md`, edits to README, CONTRIBUTING and the brief | Dashboard, integration, deployment preparation, report assembly | Commits fall into three bursts (about 01:02, 01:14 and 01:25), with shared timestamps inside each burst; the PRs were opened from @maxlovesher |
@@ -1616,7 +1570,7 @@ Each subsection lists the work that the documented role allocation and the commi
 8. **Evidence:** [Git] `5576bf6`, `ff4f2ea`, `4b96dd0`, `f59ec4d`; PR #1.
 9. **Contribution to the whole:** every other module reads the warehouse that this module builds.
 
-### 12.4.2 Kavya — Member 2, Warehouse & OLAP
+### 12.4.2 Kavya Agarwal — Member 2, Warehouse & OLAP
 
 1. **Role** [Documented]: star schema, `schema.sql`, OLAP queries, schema diagram.
 2. **Modules:** `sql/schema.sql`, `sql/olap_queries.sql`, `reports/figures/star_schema.dbml` and `.png`, report section 2.
@@ -1628,7 +1582,7 @@ Each subsection lists the work that the documented role allocation and the commi
 8. **Evidence:** [Git] `f0d86be`, `de1114d`, `7ebc352`, `13edff7`, `0f498ed`; PR #2 (opened by @Kavya-025).
 9. **Contribution to the whole:** the schema is the contract that the ETL loads into and that every analysis queries.
 
-### 12.4.3 [Full name] — Member 3, Association Rules (@KB-0141)
+### 12.4.3 Kartik Biswal — Member 3, Association Rules (@KB-0141)
 
 1. **Role** [Documented]: Apriori and FP-Growth, rule interpretation, benchmark.
 2. **Modules:** `mining/association_rules.py`, `mining/benchmark.py`, `tests/test_rules.py`, `rules_aisle.csv`, `rules_product.csv`, `benchmark.csv`, two benchmark charts, report section 3.
@@ -1724,8 +1678,8 @@ Commit counts and lines of code were **not** used directly. Doing so would, for 
 | Team Member | Development | Data / DMDW Work | Testing and Integration | Documentation / Presentation | Overall Contribution |
 |---|---:|---:|---:|---:|---:|
 | Manish Sarkar (M1) | 23.8% | 14.7% | 30.0% | 14.3% | **20.5%** |
-| Kavya (M2) | 9.5% | 26.5% | 10.0% | 23.8% | **17.1%** |
-| [Member 3] (M3) | 14.3% | 23.5% | 10.0% | 14.3% | **16.2%** |
+| Kavya Agarwal (M2) | 9.5% | 26.5% | 10.0% | 23.8% | **17.1%** |
+| Kartik Biswal (M3) | 14.3% | 23.5% | 10.0% | 14.3% | **16.2%** |
 | Manish Dey (M4) | 9.5% | 11.8% | 10.0% | 14.3% | **11.1%** |
 | Animesh Prakash (M5) | 9.5% | 14.7% | 10.0% | 14.3% | **12.0%** |
 | Rohit Gupta (M6) | 33.3% | 8.8% | 30.0% | 19.0% | **23.1%** |
@@ -1739,7 +1693,7 @@ Commit counts and lines of code were **not** used directly. Doing so would, for 
 
 **Table 12.6 – RACI matrix** (R = Responsible, A = Accountable, C = Consulted, I = Informed; "—" = not established by the available evidence)
 
-| Task | M1 Manish Sarkar | M2 Kavya | M3 [Name] | M4 Manish Dey | M5 Animesh Prakash | M6 Rohit Gupta |
+| Task | M1 Manish Sarkar | M2 Kavya Agarwal | M3 Kartik Biswal | M4 Manish Dey | M5 Animesh Prakash | M6 Rohit Gupta |
 |---|---|---|---|---|---|---|
 | Project brief, repository set-up, contributing guide | R, A | I | I | I | I | I |
 | ETL and validation | R, A | C | I | I | I | I |
@@ -1766,7 +1720,7 @@ Commit counts and lines of code were **not** used directly. Doing so would, for 
 - A fixed **build order**: ETL and schema first, because everything reads the warehouse; the mining members could prototype on samples meanwhile, and the dashboard on placeholder data.
 - Data files are never committed; only small result files are.
 
-**Dependencies between modules.**
+**Figure 12.1 – Dependencies between modules**
 
 ```mermaid
 flowchart LR
@@ -1823,8 +1777,8 @@ The following assignments come from `docs/DEMO_FLOW.md` (a 10-minute demo). They
 |---|---|---|
 | 0:00 | Problem statement, data limitations, architecture (slides) | Rohit Gupta (M6) |
 | 1:30 | Overview page: headline numbers, ETL flow, validation | Manish Sarkar (M1) |
-| 3:00 | Star schema; live OLAP demo (roll-up, drill-down, slice, dice, pivot) | Kavya (M2) |
-| 5:00 | Basket Rules: rules, recommendations, Apriori vs FP-Growth | [Member 3] (M3) |
+| 3:00 | Star schema; live OLAP demo (roll-up, drill-down, slice, dice, pivot) | Kavya Agarwal (M2) |
+| 5:00 | Basket Rules: rules, recommendations, Apriori vs FP-Growth | Kartik Biswal (M3) |
 | 6:30 | Customer Segments: sizes, scatter plot, profiles, actions | Manish Dey (M4) |
 | 8:00 | Reorder Model: metrics, feature importance, leakage control | Animesh Prakash (M5) |
 | 9:00 | Key insights, limitations, questions (slides) | Rohit Gupta (M6) |
@@ -2136,44 +2090,3 @@ All commits in `maxlovesher/StoreSense`, newest first (author as recorded in git
 | #9 | Deploy the dashboard on Streamlit Community Cloud (demo extract) | @maxlovesher | @Kavya-025 | 14 Oct 19:58 |
 
 No credentials, keys or tokens are included in this report or in the files it quotes.
-
----
-
-# Information to Confirm Before Submission
-
-**Administrative details**
-
-- [ ] Kavya's full name, and the full name of Member 3 (@KB-0141). `README.md` also still shows "_name_" for Member 3.
-- [ ] Roll / registration numbers of all six members.
-- [ ] Faculty guide's name and designation; school/department; full institution name and city; academic year; submission date.
-- [ ] Whether the institution prescribes its own certificate and declaration format.
-
-**Team contribution (Chapter 12)**
-
-- [ ] Each member checks and corrects their own subsection in 12.4, adding work done outside GitHub.
-- [ ] The team agrees on, or replaces, the **provisional** percentages in 12.5.
-- [ ] Whether pull requests were reviewed (none is recorded on GitHub), and by whom.
-- [ ] Who wrote the task briefs and the result-file contract in `handoff/`.
-- [ ] Why @DIO4699 does not appear in the repository's collaborator list.
-- [ ] Who compiled this submission report (row in Table 12.2).
-- [ ] Final presentation assignments (12.9); `DEMO_FLOW.md` says "five presenters" but lists six.
-- [ ] **Use of AI-assisted tools.** If the institution requires disclosure, complete the placeholder in the Declaration, describing which tools were used and for which parts of the code and report.
-
-**Evidence and results**
-
-- [ ] Capture and insert **dashboard screenshots** (Overview; OLAP Explorer's four tabs; Basket Rules; Customer Segments; Reorder Model) in Section 9.6. None exists in the repository.
-- [ ] Confirm the **hosted app URL** and that it works (TC-38), or remove the hosting claim.
-- [ ] Confirm the manual browser check of each page (TC-37).
-- [ ] Explain or reconcile the two recorded full-load times (8.6 s in section 1, 13.8 s in section 2 of the technical report).
-- [ ] Record the specification of the machine used for the full-data runs (it would replace the recommendations in Table 4.3).
-- [ ] Optionally investigate the 2 warnings of the test run.
-- [ ] Decide whether to commit `handoff/PHASE4_SHARED_CONTRACT.md`: `dashboard/data.py` and the technical report refer to it, but it is excluded from git.
-- [ ] Give evaluators access to the private repository, if they need it.
-
-**Formatting**
-
-- [ ] After filling in the placeholders, rebuild the PDF and Word files with `python reports/build_pdf.py` (the PDF draws every diagram).
-- [ ] Mermaid diagrams do not render in Microsoft Word. If you submit the Word file, export each diagram as an image (for example with mermaid.live or the Mermaid CLI) and insert it in place of its code block.
-- [ ] Generate the Word table of contents and page numbers after formatting.
-- [ ] Verify the references marked "(verify)", especially the web URLs and [9].
-- [ ] Slides for the presentation are not in the repository; prepare them separately.

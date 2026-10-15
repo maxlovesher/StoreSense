@@ -17,3 +17,7 @@ streamlit>=1.36
 # Notebooks & tests
 jupyter>=1.0
 pytest>=8.0
+
+# Report PDF (reports/build_pdf.py; also needs pandoc and Chrome or Edge)
+beautifulsoup4>=4.12
+pymupdf>=1.24

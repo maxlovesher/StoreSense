@@ -29,8 +29,8 @@ Raw CSVs ──► ETL (Python) ──► DuckDB warehouse (star schema)
 | # | Role | Member | GitHub |
 |---|---|---|---|
 | 1 | Data & ETL Lead | Manish Sarkar | [@maxlovesher](https://github.com/maxlovesher) |
-| 2 | Warehouse & OLAP | Kavya | [@Kavya-025](https://github.com/Kavya-025) |
-| 3 | Association Rules | _name_ | [@KB-0141](https://github.com/KB-0141) |
+| 2 | Warehouse & OLAP | Kavya Agarwal | [@Kavya-025](https://github.com/Kavya-025) |
+| 3 | Association Rules | Kartik Biswal | [@KB-0141](https://github.com/KB-0141) |
 | 4 | Customer Segmentation | Manish Dey | [@foresto-dreamer](https://github.com/foresto-dreamer) |
 | 5 | Reorder Prediction & Evaluation | Animesh Prakash | [@DIO4699](https://github.com/DIO4699) |
 | 6 | Dashboard & Integration | Rohit Gupta | [@rohitguptanit7070-lab](https://github.com/rohitguptanit7070-lab) |
