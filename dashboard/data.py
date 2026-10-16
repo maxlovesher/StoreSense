@@ -55,6 +55,7 @@ RESULT_FILES = {
     "segment_pca_sample.csv": "python mining/segmentation.py",
     "reorder_metrics.csv": "python mining/reorder_model.py",
     "reorder_feature_importance.csv": "python mining/reorder_model.py",
+    "reorder_threshold_curve.csv": "python mining/reorder_model.py",
 }
 
 

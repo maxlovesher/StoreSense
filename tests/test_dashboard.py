@@ -243,6 +243,8 @@ def test_result_columns_match_the_shared_contract():
     assert list(pd.read_csv(data.RESULTS_DIR / "reorder_metrics.csv").columns) == [
         "model", "precision", "recall", "f1", "roc_auc", "threshold", "n_train_rows", "n_test_rows"]
     assert list(pd.read_csv(data.RESULTS_DIR / "reorder_feature_importance.csv").columns) == ["model", "feature", "importance"]
+    assert list(pd.read_csv(data.RESULTS_DIR / "reorder_threshold_curve.csv").columns) == [
+        "model", "threshold", "tp", "fp", "fn", "tn"]
     assert list(pd.read_csv(data.RESULTS_DIR / "benchmark.csv").columns) == [
         "level", "algorithm", "min_support", "n_transactions", "n_itemsets", "runtime_seconds", "peak_memory_mb"]
 

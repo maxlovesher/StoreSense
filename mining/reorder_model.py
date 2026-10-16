@@ -16,8 +16,9 @@ split BY USER into train / validation / test, fit Logistic Regression (baseline)
 and LightGBM, choose the probability threshold on the validation users, and
 report precision, recall, F1 and ROC-AUC on the test users.
 
-Writes reports/results/reorder_metrics.csv, reorder_feature_importance.csv and
-two charts in reports/figures/.
+Writes reports/results/reorder_metrics.csv, reorder_feature_importance.csv,
+reorder_threshold_curve.csv (for the dashboard's threshold slider) and two charts
+in reports/figures/.
 
 Run from the project root:
     python mining/reorder_model.py
@@ -203,6 +204,21 @@ def evaluate(y_true, proba, threshold: float) -> dict:
     }
 
 
+def threshold_curve(name: str, y_true, proba, thresholds=None) -> pd.DataFrame:
+    """Confusion-matrix counts at each threshold (0.01 to 0.99 by default), counted the same way as evaluate()."""
+    y = np.asarray(y_true).astype(bool)
+    proba = np.asarray(proba)
+    if thresholds is None:
+        thresholds = np.round(np.arange(1, 100) / 100, 2)
+    rows = []
+    for t in thresholds:
+        pred = proba >= t
+        rows.append({"model": name, "threshold": float(t),
+                     "tp": int((pred & y).sum()), "fp": int((pred & ~y).sum()),
+                     "fn": int((~pred & y).sum()), "tn": int((~pred & ~y).sum())})
+    return pd.DataFrame(rows)
+
+
 def importance(name: str, model) -> pd.DataFrame:
     """Feature importance as shares that add up to 1: LightGBM split gain, or |coefficient| for the logistic model."""
     if name == "lightgbm":
@@ -253,7 +269,7 @@ def main() -> None:
     part = {name: data[data["user_key"].isin(keys)] for name, keys in sets.items()}
     print({name: f"{len(d):,} rows / {len(sets[name]):,} users" for name, d in part.items()})
 
-    metrics, importances, curves, val_auc = [], {}, {}, {}
+    metrics, importances, curves, val_auc, threshold_tables = [], {}, {}, {}, []
     for name, model in make_models().items():
         model.fit(part["train"][FEATURES], part["train"]["label"])
         p_val = model.predict_proba(part["validation"][FEATURES])[:, 1]
@@ -265,6 +281,7 @@ def main() -> None:
         val_auc[name] = roc_auc_score(part["validation"]["label"], p_val)
         fpr, tpr, _ = roc_curve(part["test"]["label"], p_test)
         curves[name] = (fpr, tpr, result["roc_auc"])
+        threshold_tables.append(threshold_curve(name, part["test"]["label"], p_test))
         importances[name] = importance(name, model)
         print(f"{name}: " + ", ".join(f"{k} {v:.3f}" for k, v in result.items()))
 
@@ -274,6 +291,7 @@ def main() -> None:
     metrics.round({"precision": 4, "recall": 4, "f1": 4, "roc_auc": 4, "threshold": 4}).to_csv(
         RESULTS_DIR / "reorder_metrics.csv", index=False)
     importances[best].round({"importance": 5}).to_csv(RESULTS_DIR / "reorder_feature_importance.csv", index=False)
+    pd.concat(threshold_tables).to_csv(RESULTS_DIR / "reorder_threshold_curve.csv", index=False)
     print(importances[best].round(3).to_string(index=False))
     plot_roc(curves)
     plot_importance(importances[best], best)
