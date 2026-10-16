@@ -34,6 +34,17 @@ def department_colors(names) -> dict:
     return {n: DEPARTMENT_COLORS.get(n, OTHER) for n in names}
 
 
+OTHER_DEPARTMENTS = "other departments"
+
+
+def department_group(departments):
+    """The department for the seven coloured ones, else one shared "other departments" (one grey legend entry)."""
+    return departments.where(departments.isin(list(DEPARTMENT_COLORS)), OTHER_DEPARTMENTS)
+
+
+GROUP_COLORS = {**DEPARTMENT_COLORS, OTHER_DEPARTMENTS: OTHER}
+
+
 pio.templates["storesense"] = go.layout.Template(layout=dict(
     font=dict(family='"Source Sans", "Source Sans Pro", "Source Sans 3", "Segoe UI", sans-serif',
               size=13, color="#3b4859"),
@@ -50,11 +61,23 @@ pio.templates["storesense"] = go.layout.Template(layout=dict(
 pio.templates.default = "plotly_white+storesense"
 
 
+def stat_card(container, value: str, text: str) -> None:
+    """A bordered card with one big number and a sentence under it (labels of st.metric are cut to one line)."""
+    with container.container(border=True):
+        st.markdown(f"<div style='font-size:2.1rem;font-weight:600;line-height:1.25;color:{ACCENT}'>{value}</div>",
+                    unsafe_allow_html=True)
+        st.caption(text)
+
+
 def chart(fig, **kwargs) -> None:
     """Draw a Plotly figure in the StoreSense style (Streamlit's own chart theme would replace the colours)."""
+    fig.update_layout(template="plotly_white+storesense",   # Streamlit resets Plotly's default template
+                      plot_bgcolor="#ffffff", paper_bgcolor="#ffffff",   # and fills a transparent background
+                      legend_title_text="")                              # entries name themselves
     st.plotly_chart(fig, theme=None, config={"displaylogo": False,
                                              "modeBarButtonsToRemove": ["lasso2d", "select2d", "autoScale2d"]},
                     **kwargs)
+
 
 kpis = st.cache_data(show_spinner=False)(data.kpis)
 orders_by_hour = st.cache_data(show_spinner=False)(data.orders_by_hour)

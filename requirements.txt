@@ -12,7 +12,7 @@ lightgbm>=4.3          # stretch goal: reorder model
 # Visualisation & dashboard
 plotly>=5.22
 matplotlib>=3.8
-streamlit>=1.36
+streamlit>=1.45         # bordered metrics, page icons, table row selection
 
 # Notebooks & tests
 jupyter>=1.0

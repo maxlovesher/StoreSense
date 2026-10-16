@@ -18,6 +18,10 @@ from dashboard import ui
 from dashboard.data import CUBE_DIMENSIONS, DIMENSIONS, PRODUCT_HIERARCHY, TIME_HIERARCHY, highlight_mask
 
 
+# The blue ramp without its two palest steps, so small cells stay visible on a white page.
+CUBE_SCALE = [[0.0, "#9ec5f4"], [0.25, "#6da7ec"], [0.5, "#3987e5"], [0.75, "#256abf"], [1.0, "#0d366b"]]
+
+
 def cube_figure(cells, axes: dict, dims: list[str], mask) -> go.Figure:
     """A 3-D scatter with one ball per cube cell (size and colour = order lines), inside a wireframe box.
     Cells outside the highlighted slice or dice are drawn faint and grey."""
@@ -34,12 +38,12 @@ def cube_figure(cells, axes: dict, dims: list[str], mask) -> go.Figure:
     if (~inside).any():
         fig.add_trace(go.Scatter3d(
             x=xyz[0][~inside], y=xyz[1][~inside], z=xyz[2][~inside], mode="markers", name="outside the selection",
-            marker=dict(size=size[~inside], color="lightgrey", opacity=0.12, line=dict(width=0)),
+            marker=dict(size=size[~inside], color=ui.OTHER, opacity=0.15, line=dict(width=0)),
             hovertext=hover[~inside], hoverinfo="text"))
     fig.add_trace(go.Scatter3d(
         x=xyz[0][inside], y=xyz[1][inside], z=xyz[2][inside], mode="markers",
         name="selected cells" if (~inside).any() else "cells",
-        marker=dict(size=size[inside], color=lines[inside], colorscale="Viridis", opacity=0.9,
+        marker=dict(size=size[inside], color=lines[inside], colorscale=CUBE_SCALE, opacity=0.9,
                     colorbar=dict(title="order lines"), line=dict(width=0)),
         hovertext=hover[inside], hoverinfo="text"))
 
@@ -54,7 +58,7 @@ def cube_figure(cells, axes: dict, dims: list[str], mask) -> go.Figure:
                 edge_y += [a[1], b[1], None]
                 edge_z += [a[2], b[2], None]
     fig.add_trace(go.Scatter3d(x=edge_x, y=edge_y, z=edge_z, mode="lines", hoverinfo="skip",
-                               line=dict(color="grey", width=2), showlegend=False))
+                               line=dict(color="#9aa8b8", width=2), showlegend=False))
 
     def axis(d):
         return dict(title=d, tickvals=list(range(len(axes[d]))), ticktext=[str(v) for v in axes[d]],
@@ -65,7 +69,7 @@ def cube_figure(cells, axes: dict, dims: list[str], mask) -> go.Figure:
     )
     return fig
 
-st.set_page_config(page_title="OLAP Explorer - StoreSense", layout="wide")
+st.set_page_config(page_title="OLAP Explorer - StoreSense", page_icon=":material/view_in_ar:", layout="wide")
 st.title("OLAP Explorer")
 st.caption("Roll up, drill down, slice, dice and pivot the order lines. "
            "Use the filters in the sidebar: one filter is a **slice**, several together are a **dice**.")
@@ -109,15 +113,20 @@ with roll_tab:
         grand = int(rolled.loc[rolled["level"] == "grand total", "order_lines"].iloc[0])
         st.metric("Order lines in this view (grand total)", ui.fmt_int(grand))
         detail = rolled[rolled["level"] == levels[-1]].head(30)
-        fig = px.bar(detail, x="order_lines", y=levels[-1], orientation="h",
-                     color=levels[0] if len(levels) > 1 else None,
-                     labels={"order_lines": "order lines"})
+        colour_by = levels[0] if len(levels) > 1 else None
+        if colour_by == "Department":   # seven departments keep their colour, the rest share one grey entry
+            detail = detail.assign(department_group=ui.department_group(detail["Department"]))
+            colour_by = "department_group"
+        fig = px.bar(detail, x="order_lines", y=levels[-1], orientation="h", color=colour_by,
+                     color_discrete_map=ui.GROUP_COLORS if colour_by == "department_group" else None,
+                     hover_data=["Department"] if "Department" in detail else None,
+                     labels={"order_lines": "order lines", "department_group": "department"})
         fig.update_layout(yaxis=dict(categoryorder="total ascending"), margin=dict(t=10), height=min(900, 120 + 22 * len(detail)))
-        st.plotly_chart(fig)
+        ui.chart(fig)
         st.caption("The 30 biggest rows at the chosen level.")
         st.markdown("**The full roll-up table**: detail rows, a subtotal for every higher level, and the grand total.")
         st.dataframe(rolled, hide_index=True,
-                     column_config={"order_lines": st.column_config.NumberColumn("order lines", format="%d")})
+                     column_config={"order_lines": st.column_config.NumberColumn("order lines", format="localized")})
 
 # --- slice and dice ------------------------------------------------------------------------
 with cut_tab:
@@ -130,10 +139,16 @@ with cut_tab:
         st.metric("Order lines in the current slice or dice", ui.fmt_int(cut["order_lines"].sum()),
                   help="Rows beyond the top 500 groups are not counted here.")
         x = group_by[0]
-        fig = px.bar(cut.head(40), x=x, y="order_lines", color=group_by[1] if len(group_by) > 1 else None,
-                     labels={"order_lines": "order lines"})
-        fig.update_layout(margin=dict(t=10))
-        st.plotly_chart(fig)
+        colour_by = group_by[1] if len(group_by) > 1 else (x if x == "Department" else None)
+        shown = cut.head(40)
+        if colour_by == "Department":
+            shown = shown.assign(department_group=ui.department_group(shown["Department"]))
+            colour_by = "department_group"
+        fig = px.bar(shown, x=x, y="order_lines", color=colour_by,
+                     color_discrete_map=ui.GROUP_COLORS if colour_by == "department_group" else None,
+                     labels={"order_lines": "order lines", "department_group": "department"})
+        fig.update_layout(margin=dict(t=10), showlegend=colour_by is not None and not (x == "Department" and len(group_by) == 1))
+        ui.chart(fig)
         st.dataframe(cut, hide_index=True)
 
 # --- pivot ---------------------------------------------------------------------------------
@@ -146,10 +161,13 @@ with pivot_tab:
         st.info("Pick a department or an aisle in the sidebar first: there are about 50,000 products.")
     else:
         matrix = ui.olap_pivot(row_dim, col_dim, filters, top_rows)
-        fig = px.imshow(matrix, aspect="auto", color_continuous_scale="Blues", text_auto=".3s",
+        fig = px.imshow(matrix, aspect="auto", color_continuous_scale=ui.BLUES, text_auto=".3s",
                         labels={"x": col_dim, "y": row_dim, "color": "order lines"})
+        fig.update_traces(xgap=2, ygap=2)
+        fig.update_xaxes(showgrid=False)
+        fig.update_yaxes(showgrid=False)
         fig.update_layout(margin=dict(t=10), height=max(350, 28 * len(matrix) + 120))
-        st.plotly_chart(fig)
+        ui.chart(fig)
         with st.expander("The numbers behind the heatmap"):
             st.dataframe(matrix)
 
@@ -174,7 +192,7 @@ with cube_tab:
         n_axes = sum(bool(v) for v in picks.values())
         kind = {0: "the whole cube", 1: "a slice"}.get(n_axes, "a dice")
 
-        st.plotly_chart(cube_figure(cells, axes, dims, mask))
+        ui.chart(cube_figure(cells, axes, dims, mask))
         total = int(cells["order_lines"].sum())
         chosen = int(cells.loc[mask, "order_lines"].sum())
         m1, m2, m3 = st.columns(3)

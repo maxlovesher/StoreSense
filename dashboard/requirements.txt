@@ -2,7 +2,7 @@
 # requirements file next to the entry file, dashboard/app.py). It is smaller than
 # the root requirements.txt: no Jupyter, LightGBM or test tools, so the app builds faster.
 # For local work, keep using the root requirements.txt.
-streamlit>=1.36
+streamlit>=1.45
 plotly>=5.22
 duckdb>=1.1
 pandas>=2.2
