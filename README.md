@@ -29,7 +29,7 @@ Raw CSVs ──► ETL (Python) ──► DuckDB warehouse (star schema)
 | # | Role | Member | GitHub |
 |---|---|---|---|
 | 1 | Data & ETL Lead | Manish Sarkar | [@maxlovesher](https://github.com/maxlovesher) |
-| 2 | Warehouse & OLAP | Kavya | [@Kavya-025](https://github.com/Kavya-025) |
+| 2 | Warehouse & OLAP | Kavya Agarwal | [@Kavya-025](https://github.com/Kavya-025) |
 | 3 | Association Rules | Kartik Biswal | [@KB-0141](https://github.com/KB-0141) |
 | 4 | Customer Segmentation | Manish Dey | [@foresto-dreamer](https://github.com/foresto-dreamer) |
 | 5 | Reorder Prediction & Evaluation | Animesh Prakash | [@DIO4699](https://github.com/DIO4699) |
@@ -99,6 +99,7 @@ Run every command from the project root. Each script can be run on its own.
 | Reorder model (stretch) | `python mining/reorder_model.py` | 4 |
 | Dashboard | `streamlit run dashboard/app.py` | 5 |
 | Assemble the report | `python reports/build_report.py` | 6 |
+| Submission report as PDF and Word | `python reports/build_pdf.py` (needs pandoc and Chrome or Edge) | 6 |
 
 The OLAP demo queries are in `sql/olap_queries.sql`. The mining result files the dashboard reads are in `reports/results/` (committed), the assembled report is `reports/StoreSense_report.md`, and the demo script is [docs/DEMO_FLOW.md](docs/DEMO_FLOW.md). To host the dashboard for free on Streamlit Community Cloud, see [docs/DEPLOY.md](docs/DEPLOY.md).
 

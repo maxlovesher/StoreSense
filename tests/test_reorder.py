@@ -37,6 +37,7 @@ from mining.reorder_model import (
     make_models,
     sample_train_users,
     split_users,
+    threshold_curve,
 )
 
 A, B, C, D, E = 10, 11, 12, 13, 14
@@ -164,6 +165,20 @@ def test_evaluate_matches_hand_count():
     assert r["f1"] == pytest.approx(2 / 3)
     assert r["roc_auc"] == pytest.approx(5 / 6)   # 5 of the 6 positive-negative pairs are ranked correctly
     assert r["threshold"] == 0.5
+
+
+def test_threshold_curve_counts_match_evaluate():
+    # the same five pairs as above: at 0.5 -> TP 2, FP 1, FN 1, TN 1
+    y = np.array([1, 1, 0, 0, 1])
+    p = np.array([0.9, 0.4, 0.6, 0.1, 0.8])
+    curve = threshold_curve("m", y, p, thresholds=[0.05, 0.5, 0.95])
+    assert list(curve.columns) == ["model", "threshold", "tp", "fp", "fn", "tn"]
+    at = curve.set_index("threshold")
+    assert at.loc[0.5, ["tp", "fp", "fn", "tn"]].tolist() == [2, 1, 1, 1]
+    assert at.loc[0.05, ["tp", "fp", "fn", "tn"]].tolist() == [3, 2, 0, 0]   # everything predicted "yes"
+    assert at.loc[0.95, ["tp", "fp", "fn", "tn"]].tolist() == [0, 0, 3, 2]   # everything predicted "no"
+    r = evaluate(y, p, 0.5)
+    assert r["precision"] == pytest.approx(2 / (2 + 1)) and r["recall"] == pytest.approx(2 / (2 + 1))
 
 
 def test_best_threshold_maximises_f1():
